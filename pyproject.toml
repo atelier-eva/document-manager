@@ -14,8 +14,7 @@ dependencies = [
     "flake8 (>=7.1.2,<8.0.0)",
     "isort (>=6.0.1,<7.0.0)",
     "mypy (>=1.15.0,<2.0.0)",
-    "black (>=25.1.0,<26.0.0)",
-    "pillow (>=11.1.0,<12.0.0)",
+    "pillow (>=12.2.0)",
     "numpy (>=2.2.3,<3.0.0)",
     "jinja2 (>=3.1.6,<4.0.0)",
 ]
@@ -29,3 +28,8 @@ packages = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "black (>=26.3.1)"
+]
