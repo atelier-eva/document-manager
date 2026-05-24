@@ -103,7 +103,7 @@ def _copy_tree(src, dest: Path, force: bool, counts: dict) -> None:
     dest.mkdir(parents=True, exist_ok=True)
     for item in src.iterdir():
         target_name = item.name
-        if target_name.endswith(".yml.example"):
+        if target_name.endswith(".example"):
             target_name = target_name[: -len(".example")]
         target = dest / target_name
 
