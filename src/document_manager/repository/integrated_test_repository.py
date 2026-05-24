@@ -6,14 +6,14 @@ import re
 import yaml
 from jinja2 import Template
 from PIL import Image
-from src.integrated_test.data.integrated_test_data import IntegratedTestData
-from src.integrated_test.case.integrated_test_case import IntegratedTestCase
-from src.integrated_test.image.integrated_test_image import IntegratedTestImage
-from src.integrated_test.matrix.integrated_test_matrix import IntegratedTestMatrix
-from src.integrated_test.block.integrated_test_block import IntegratedTestBlock
-from src.integrated_test.preparation.integrated_test_preparation import IntegratedTestPreparation
-from src.integrated_test.perspective.integrated_test_perspective import IntegratedTestPerspective
-from src.integrated_test.integrated_test import IntegratedTest
+from document_manager.integrated_test.data.integrated_test_data import IntegratedTestData
+from document_manager.integrated_test.case.integrated_test_case import IntegratedTestCase
+from document_manager.integrated_test.image.integrated_test_image import IntegratedTestImage
+from document_manager.integrated_test.matrix.integrated_test_matrix import IntegratedTestMatrix
+from document_manager.integrated_test.block.integrated_test_block import IntegratedTestBlock
+from document_manager.integrated_test.preparation.integrated_test_preparation import IntegratedTestPreparation
+from document_manager.integrated_test.perspective.integrated_test_perspective import IntegratedTestPerspective
+from document_manager.integrated_test.integrated_test import IntegratedTest
 
 class IntegratedTestRepository():
     def find(self, typeName, name):

@@ -1,35 +1,38 @@
 [project]
 name = "document-manager"
 version = "0.1.0"
-description = ""
-authors = [
-    {name = "Your Name",email = "you@example.com"}
-]
+description = "結合テスト仕様書を Excel で生成するツール"
 readme = "README.md"
 requires-python = ">=3.13"
+authors = [
+    { name = "atelier-eva" },
+]
 dependencies = [
-    "et-xmlfile (>=2.0.0,<3.0.0)",
-    "openpyxl (>=3.1.5,<4.0.0)",
-    "pyyaml (>=6.0.2,<7.0.0)",
-    "flake8 (>=7.1.2,<8.0.0)",
-    "isort (>=6.0.1,<7.0.0)",
-    "mypy (>=1.15.0,<2.0.0)",
-    "pillow (>=12.2.0)",
-    "numpy (>=2.2.3,<3.0.0)",
-    "jinja2 (>=3.1.6,<4.0.0)",
+    "et-xmlfile>=2.0.0,<3.0.0",
+    "openpyxl>=3.1.5,<4.0.0",
+    "pyyaml>=6.0.2,<7.0.0",
+    "pillow>=12.2.0",
+    "numpy>=2.2.3,<3.0.0",
+    "jinja2>=3.1.6,<4.0.0",
 ]
 
-[tool.poetry]
-packages = [
-    {include = "excel", from = "src"},
-    {include = "test", from = "src"},
-]
+[project.scripts]
+document-manager = "document_manager.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/atelier-eva/document-manager"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/document_manager"]
 
 [dependency-groups]
 dev = [
-    "black (>=26.3.1)"
+    "black>=26.3.1",
+    "flake8>=7.1.2,<8.0.0",
+    "isort>=6.0.1,<7.0.0",
+    "mypy>=1.15.0,<2.0.0",
 ]

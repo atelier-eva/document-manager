@@ -3,7 +3,7 @@ from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, PatternFill, Side
 from openpyxl.worksheet.datavalidation import DataValidation
-from src.excel.excel_specification import ExcelSpecification
+from document_manager.excel.excel_specification import ExcelSpecification
 import os
 
 class ExcelLib():

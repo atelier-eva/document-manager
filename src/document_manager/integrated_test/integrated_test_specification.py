@@ -1,16 +1,16 @@
-from src.excel.excel import Excel
-from src.excel.excel_specification import ExcelSpecification
-from src.excel.sheet.excel_sheet import ExcelSheet
-from src.excel.sheet.cell.excel_sheet_cell import ExcelSheetCell
-from src.excel.sheet.auto_filter.excel_sheet_auto_filter import ExcelSheetAutoFilter
-from src.excel.sheet.cell.alignment.excel_sheet_cell_alignment import ExcelSheetCellAlignment
-from src.excel.sheet.cell.border.excel_sheet_cell_border import ExcelSheetCellBorder
-from src.excel.sheet.cell.fill.excel_sheet_cell_fill import ExcelSheetCellFill
-from src.excel.sheet.cell.font.excel_sheet_cell_font import ExcelSheetCellFont
-from src.excel.sheet.image.excel_sheet_image import ExcelSheetImage
-from src.excel.sheet.image.excel_sheet_image_size import ExcelSheetImageSize
-from src.excel.sheet.cell.line.excel_sheet_cell_line import ExcelSheetCellLine
-from src.excel.sheet.cell.style.excel_sheet_cell_style import ExcelSheetCellStyle
+from document_manager.excel.excel import Excel
+from document_manager.excel.excel_specification import ExcelSpecification
+from document_manager.excel.sheet.excel_sheet import ExcelSheet
+from document_manager.excel.sheet.cell.excel_sheet_cell import ExcelSheetCell
+from document_manager.excel.sheet.auto_filter.excel_sheet_auto_filter import ExcelSheetAutoFilter
+from document_manager.excel.sheet.cell.alignment.excel_sheet_cell_alignment import ExcelSheetCellAlignment
+from document_manager.excel.sheet.cell.border.excel_sheet_cell_border import ExcelSheetCellBorder
+from document_manager.excel.sheet.cell.fill.excel_sheet_cell_fill import ExcelSheetCellFill
+from document_manager.excel.sheet.cell.font.excel_sheet_cell_font import ExcelSheetCellFont
+from document_manager.excel.sheet.image.excel_sheet_image import ExcelSheetImage
+from document_manager.excel.sheet.image.excel_sheet_image_size import ExcelSheetImageSize
+from document_manager.excel.sheet.cell.line.excel_sheet_cell_line import ExcelSheetCellLine
+from document_manager.excel.sheet.cell.style.excel_sheet_cell_style import ExcelSheetCellStyle
 
 class IntegratedTestSpecification():
     @classmethod

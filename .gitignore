@@ -1,16 +1,14 @@
 storage/integrated_test/batch_config/*
-!storage/integrated_test/batch_config/テスト観点.yml.example
-!storage/integrated_test/batch_config/共通.yml.example
 storage/integrated_test/component_config/*
-!storage/integrated_test/component_config/テスト観点.yml.example
-!storage/integrated_test/component_config/共通.yml.example
 storage/integrated_test/file_config/*
-!storage/integrated_test/file_config/テスト観点.yml.example
-!storage/integrated_test/file_config/共通.yml.example
 storage/integrated_test/global_config/*
-!storage/integrated_test/global_config/データセット.yml.example
 storage/integrated_test/view_config/*
-!storage/integrated_test/view_config/テスト観点.yml.example
-!storage/integrated_test/view_config/共通.yml.example
 
 __pycache__
+.venv/
+.venv.bak*/
+dist/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
