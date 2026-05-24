@@ -1,10 +1,3 @@
-storage/schedule/*
-!storage/schedule/案件名.yml.example
-storage/schedule_config/*
-!storage/schedule_config/メンバー.yml.example
-!storage/schedule_config/休日.yml.example
-!storage/schedule_config/施策.yml.example
-
 storage/integrated_test/batch_config/*
 !storage/integrated_test/batch_config/テスト観点.yml.example
 !storage/integrated_test/batch_config/共通.yml.example
