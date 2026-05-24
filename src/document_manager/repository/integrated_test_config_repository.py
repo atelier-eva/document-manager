@@ -1,52 +1,50 @@
 import logging
-import os
 import yaml
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from document_manager.integrated_test.case.integrated_test_case import IntegratedTestCase
 from document_manager.integrated_test.config.integrated_test_config import IntegratedTestConfig
 from document_manager.integrated_test.block.integrated_test_block import IntegratedTestBlock
 from document_manager.integrated_test.perspective.integrated_test_perspective import IntegratedTestPerspective
 
 class IntegratedTestConfigRepository():
+    storageRoot = "./storage/integrated_test"
+
+    def __init__(self):
+        self.env = Environment(loader=FileSystemLoader(self.storageRoot))
+
     def find(self) -> IntegratedTestConfig:
         # データセット読み込み
-        dataSets = {}
-        try:
-            with open("./storage/integrated_test/global_config/データセット.yml", 'r') as file:
-                dataSets = yaml.safe_load(file)
-        except FileNotFoundError:
-            pass
+        dataSets = self._loadDataSets()
 
         configs = []
         typeNames = ['component', 'batch', 'file', 'view']
         for typeName in typeNames:
-            path = f"./storage/integrated_test/{typeName}_config/共通.yml"
+            commonRel = f"{typeName}_config/共通.yml.j2"
+            commonAbs = f"{self.storageRoot}/{commonRel}"
 
-            logging.info(f"{path}の読み込み開始")
+            logging.info(f"{commonAbs}の読み込み開始")
 
-            if not os.path.isfile(path):
-                raise Exception(f"{path}が見つかりません")
+            try:
+                template = self.env.get_template(commonRel)
+            except TemplateNotFound:
+                raise Exception(f"{commonAbs}が見つかりません")
 
-            data = None
-            with open(path, 'r') as file:
-                template = Template(file.read())
-                output = template.render(dataSets)
-                data = yaml.safe_load(output)
+            data = yaml.safe_load(template.render(dataSets))
 
             if data is None:
-                raise Exception(f"{path}が空です")
+                raise Exception(f"{commonAbs}が空です")
 
             blockPerspectives = []
             for perspectiveName in data:
                 if data[perspectiveName] is None:
-                    raise Exception(f"{path}の{perspectiveName}が空です")
+                    raise Exception(f"{commonAbs}の{perspectiveName}が空です")
 
                 cases = []
                 for case in data[perspectiveName]:
                     if case is None:
-                        raise Exception(f"{path}の{perspectiveName}のテストケースが空です")
+                        raise Exception(f"{commonAbs}の{perspectiveName}のテストケースが空です")
                     elif (not '想定結果' in case) or (not isinstance(case['想定結果'], list)):
-                        raise Exception(f"{path}の{perspectiveName}の想定結果が空です")
+                        raise Exception(f"{commonAbs}の{perspectiveName}の想定結果が空です")
 
                     cases.append(IntegratedTestCase(
                         case['パターン'],
@@ -58,14 +56,26 @@ class IntegratedTestConfigRepository():
 
             block = IntegratedTestBlock("共通", blockPerspectives)
 
-            logging.info(f"./storage/integrated_test/{typeName}_config/テスト観点.ymlの読み込み開始")
+            perspectiveRel = f"{typeName}_config/テスト観点.yml.j2"
+            perspectiveAbs = f"{self.storageRoot}/{perspectiveRel}"
 
-            perspectives = None
-            with open(f"./storage/integrated_test/{typeName}_config/テスト観点.yml", 'r') as file:
-                template = Template(file.read())
-                output = template.render(dataSets)
-                perspectives = yaml.safe_load(output)
+            logging.info(f"{perspectiveAbs}の読み込み開始")
+
+            try:
+                template = self.env.get_template(perspectiveRel)
+            except TemplateNotFound:
+                raise Exception(f"{perspectiveAbs}が見つかりません")
+
+            perspectives = yaml.safe_load(template.render(dataSets))
 
             configs.append(IntegratedTestConfig(typeName, block, perspectives))
 
         return configs
+
+    def _loadDataSets(self) -> dict:
+        try:
+            template = self.env.get_template("global_config/データセット.yml.j2")
+        except TemplateNotFound:
+            return {}
+        data = yaml.safe_load(template.render())
+        return data if data is not None else {}

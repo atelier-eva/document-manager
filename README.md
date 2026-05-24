@@ -31,10 +31,20 @@ document-manager init
 document-manager init --force
 ```
 
+## 入力ファイル形式
+仕様書の入力ファイルは [Jinja2](https://jinja.palletsprojects.com/) テンプレートとして読み込まれる。レンダリング後に YAML / CSV としてパースされるため、テンプレート構文 (`{% for %}`, `{{ var }}`, `{% include %}` など) が利用できる。
+
+| 種類 | 拡張子 |
+| --- | --- |
+| YAML 系（テストケース、テストデータ、事前準備・注意点、共通、テスト観点、データセット） | `.yml.j2` |
+| マトリクス | `.csv.j2` |
+
+`global_config/データセット.yml.j2` で定義した値はテンプレートのコンテキストとして全ファイルに渡される。
+
 ## 結合テスト仕様書
 ```bash
 # 全体で共有するデータセットを作成する
-# ./storage/integrated_test/global_config/データセット.yml
+# ./storage/integrated_test/global_config/データセット.yml.j2
 
 # バッチのテストを作成する
 # ./storage/integrated_test/batch

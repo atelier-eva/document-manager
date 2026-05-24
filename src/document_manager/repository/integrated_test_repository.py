@@ -1,10 +1,11 @@
 import csv
 import glob
+import io
 import logging
 import os
 import re
 import yaml
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from PIL import Image
 from document_manager.integrated_test.data.integrated_test_data import IntegratedTestData
 from document_manager.integrated_test.case.integrated_test_case import IntegratedTestCase
@@ -16,54 +17,59 @@ from document_manager.integrated_test.perspective.integrated_test_perspective im
 from document_manager.integrated_test.integrated_test import IntegratedTest
 
 class IntegratedTestRepository():
+    storageRoot = "./storage/integrated_test"
+
+    def __init__(self):
+        self.env = Environment(loader=FileSystemLoader(self.storageRoot))
+
     def find(self, typeName, name):
         # データセット読み込み
-        dataSets = {}
-        try:
-            with open("./storage/integrated_test/global_config/データセット.yml", 'r') as file:
-                dataSets = yaml.safe_load(file)
-        except FileNotFoundError:
-            pass
+        dataSets = self._loadDataSets()
 
-        blocks = self.getBlocks(f"./storage/integrated_test/{typeName}/{name}/テストケース.yml", dataSets)
+        blocks = self.getBlocks(f"{typeName}/{name}/テストケース.yml.j2", dataSets)
 
         matrices = []
-        matrixPaths = sorted(glob.glob(f"./storage/integrated_test/{typeName}/{name}/マトリクス/*"))
+        matrixDir = f"{self.storageRoot}/{typeName}/{name}/マトリクス"
+        matrixPaths = sorted(glob.glob(f"{matrixDir}/*.csv.j2"))
         for matrixPath in matrixPaths:
-            with open(matrixPath, 'r') as file:
-                reader = csv.reader(file)
-                data = [row for row in reader]
+            relPath = os.path.relpath(matrixPath, self.storageRoot)
+            template = self.env.get_template(relPath)
+            rendered = template.render(dataSets)
+            reader = csv.reader(io.StringIO(rendered))
+            data = [row for row in reader]
 
-                if ('エビデンス' in data[0]) and (data[0].index('エビデンス') != len(data[0]) - 1):
-                    raise Exception(f"{matrixPath}のエビデンス列を最後列にしてください")
+            if ('エビデンス' in data[0]) and (data[0].index('エビデンス') != len(data[0]) - 1):
+                raise Exception(f"{matrixPath}のエビデンス列を最後列にしてください")
 
-                matrices.append(IntegratedTestMatrix(os.path.splitext(os.path.basename(matrixPath))[0], data[0], data[1:]))
+            matrices.append(IntegratedTestMatrix(self._stripExtension(matrixPath, ".csv.j2"), data[0], data[1:]))
 
         images = []
-        imagePaths = sorted(glob.glob(f"./storage/integrated_test/{typeName}/{name}/画面イメージ/*"))
+        imagePaths = sorted(glob.glob(f"{self.storageRoot}/{typeName}/{name}/画面イメージ/*"))
         for imagePath in imagePaths:
             if os.path.isfile(imagePath):
                 img = Image.open(imagePath)
                 w, h = img.size
                 images.append(IntegratedTestImage(imagePath, w, h))
 
-        preparationPath = f"./storage/integrated_test/{typeName}/{name}/事前準備・注意点.yml"
         preparation = None
-        if os.path.isfile(preparationPath):
-            with open(preparationPath, 'r') as file:
-                template = Template(file.read())
-                output = template.render(dataSets)
-                data = yaml.safe_load(output)
-                preparation = IntegratedTestPreparation([] if data == None else data)
+        preparationRel = f"{typeName}/{name}/事前準備・注意点.yml.j2"
+        try:
+            template = self.env.get_template(preparationRel)
+        except TemplateNotFound:
+            template = None
+        if template is not None:
+            data = yaml.safe_load(template.render(dataSets))
+            preparation = IntegratedTestPreparation([] if data is None else data)
 
-        testDataPath = f"./storage/integrated_test/{typeName}/{name}/テストデータ.yml"
         testData = None
-        if os.path.isfile(testDataPath):
-            with open(testDataPath, 'r') as file:
-                template = Template(file.read())
-                output = template.render(dataSets)
-                data = yaml.safe_load(output)
-                testData = IntegratedTestData(data)
+        testDataRel = f"{typeName}/{name}/テストデータ.yml.j2"
+        try:
+            template = self.env.get_template(testDataRel)
+        except TemplateNotFound:
+            template = None
+        if template is not None:
+            data = yaml.safe_load(template.render(dataSets))
+            testData = IntegratedTestData(data)
 
         return IntegratedTest(typeName, name, blocks, matrices, images, preparation, testData)
 
@@ -71,44 +77,43 @@ class IntegratedTestRepository():
         integratedTests = []
         typeNames = ['batch', 'component', 'file', 'view']
         for typeName in typeNames:
-            paths = glob.glob(fr"./storage/integrated_test/{typeName}/*/")
+            paths = glob.glob(fr"{self.storageRoot}/{typeName}/*/")
             for path in paths:
-                result = re.match(fr"./storage/integrated_test/{typeName}/(.+)/", path)
+                result = re.match(fr"{re.escape(self.storageRoot)}/{typeName}/(.+)/", path)
                 name = result.group(1)
                 integratedTests.append(self.find(typeName, name))
         return integratedTests
 
-    def getBlocks(self, path, dataSets) -> list:
-        logging.info(f"{path}の読み込み開始")
+    def getBlocks(self, relPath, dataSets) -> list:
+        absPath = f"{self.storageRoot}/{relPath}"
+        logging.info(f"{absPath}の読み込み開始")
 
-        if not os.path.isfile(path):
-            raise Exception(f"{path}が見つかりません")
+        try:
+            template = self.env.get_template(relPath)
+        except TemplateNotFound:
+            raise Exception(f"{absPath}が見つかりません")
 
-        data = None
-        with open(path, 'r') as file:
-            template = Template(file.read())
-            output = template.render(dataSets)
-            data = yaml.safe_load(output)
-        
+        data = yaml.safe_load(template.render(dataSets))
+
         if data is None:
-            raise Exception(f"{path}が空です")
+            raise Exception(f"{absPath}が空です")
 
         blocks = []
         for _, blockName in enumerate(data):
             if data[blockName] is None:
-                raise Exception(f"{path}の{blockName}が空です")
+                raise Exception(f"{absPath}の{blockName}が空です")
 
             perspectives = []
             for _, perspectiveName in enumerate(data[blockName]):
                 if data[blockName][perspectiveName] is None:
-                    raise Exception(f"{path}の{blockName}の{perspectiveName}が空です")
+                    raise Exception(f"{absPath}の{blockName}の{perspectiveName}が空です")
 
                 cases = []
                 for _, case in enumerate(data[blockName][perspectiveName]):
                     if case is None:
-                        raise Exception(f"{path}の{blockName}の{perspectiveName}のテストケースが空です")
+                        raise Exception(f"{absPath}の{blockName}の{perspectiveName}のテストケースが空です")
                     elif (not '想定結果' in case) or (not isinstance(case['想定結果'], list)):
-                        raise Exception(f"{path}の{blockName}の{perspectiveName}の想定結果が空です")
+                        raise Exception(f"{absPath}の{blockName}の{perspectiveName}の想定結果が空です")
 
                     cases.append(IntegratedTestCase(
                         case['パターン'] if 'パターン' in case else '',
@@ -119,3 +124,18 @@ class IntegratedTestRepository():
                 perspectives.append(IntegratedTestPerspective(perspectiveName, cases))
             blocks.append(IntegratedTestBlock(blockName, perspectives))
         return blocks
+
+    def _loadDataSets(self) -> dict:
+        try:
+            template = self.env.get_template("global_config/データセット.yml.j2")
+        except TemplateNotFound:
+            return {}
+        data = yaml.safe_load(template.render())
+        return data if data is not None else {}
+
+    @staticmethod
+    def _stripExtension(path: str, extension: str) -> str:
+        base = os.path.basename(path)
+        if base.endswith(extension):
+            return base[: -len(extension)]
+        return os.path.splitext(base)[0]
