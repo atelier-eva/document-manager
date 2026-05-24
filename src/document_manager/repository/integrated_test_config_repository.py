@@ -2,10 +2,10 @@ import logging
 import os
 import yaml
 from jinja2 import Template
-from src.integrated_test.case.integrated_test_case import IntegratedTestCase
-from src.integrated_test.config.integrated_test_config import IntegratedTestConfig
-from src.integrated_test.block.integrated_test_block import IntegratedTestBlock
-from src.integrated_test.perspective.integrated_test_perspective import IntegratedTestPerspective
+from document_manager.integrated_test.case.integrated_test_case import IntegratedTestCase
+from document_manager.integrated_test.config.integrated_test_config import IntegratedTestConfig
+from document_manager.integrated_test.block.integrated_test_block import IntegratedTestBlock
+from document_manager.integrated_test.perspective.integrated_test_perspective import IntegratedTestPerspective
 
 class IntegratedTestConfigRepository():
     def find(self) -> IntegratedTestConfig:

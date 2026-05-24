@@ -1,8 +1,8 @@
 import logging
-from lib.excel_lib import ExcelLib
-from repository.integrated_test_config_repository import IntegratedTestConfigRepository
-from repository.integrated_test_repository import IntegratedTestRepository
-from src.integrated_test.integrated_test_specification import IntegratedTestSpecification
+from document_manager.lib.excel_lib import ExcelLib
+from document_manager.repository.integrated_test_config_repository import IntegratedTestConfigRepository
+from document_manager.repository.integrated_test_repository import IntegratedTestRepository
+from document_manager.integrated_test.integrated_test_specification import IntegratedTestSpecification
 import sys
 
 # 結合テスト仕様書を生成する

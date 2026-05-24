@@ -1,6 +1,6 @@
 import unittest
 
-from src.excel.excel_specification import ExcelSpecification
+from document_manager.excel.excel_specification import ExcelSpecification
 
 class TestExcelSpecification(unittest.IntegratedTestCase):
     def __init__(self, methodName: str) -> None:
