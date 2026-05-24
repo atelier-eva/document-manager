@@ -1,4 +1,5 @@
 import logging
+import os
 from document_manager.lib.excel_lib import ExcelLib
 from document_manager.repository.integrated_test_config_repository import IntegratedTestConfigRepository
 from document_manager.repository.integrated_test_repository import IntegratedTestRepository
@@ -10,6 +11,7 @@ import sys
 
 def main() -> int:
     # ログ設定
+    os.makedirs('./storage/log', exist_ok=True)
     logging.basicConfig(
         filename='./storage/log/app.log',
         level=logging.INFO,
